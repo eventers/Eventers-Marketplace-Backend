@@ -1,0 +1,17 @@
+# Binaries for programs and plugins
+*.exe
+
+
+# Go
+vendor
+.cover
+
+# IDE
+.idea
+
+# Build directory
+build
+
+*.json
+
+firebase/testdata
