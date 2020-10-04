@@ -4,6 +4,7 @@ import (
 	"context"
 	"eventers-marketplace-backend/algorand"
 	"eventers-marketplace-backend/config"
+	"eventers-marketplace-backend/event"
 	"eventers-marketplace-backend/factory"
 	"eventers-marketplace-backend/handler"
 	"eventers-marketplace-backend/healthcheck"
@@ -57,6 +58,7 @@ func Router(ctx context.Context) *mux.Router {
 		viper.GetUint64(config.SeedAlgo),
 	)
 	userService := user.NewUser(algo, *vault)
+	eventService := event.NewEvent(algo, *vault)
 	f := factory.NewFactory()
 
 	r.HandleFunc("/healthcheck", healthcheck.Self).Methods(http.MethodGet)
@@ -65,6 +67,12 @@ func Router(ctx context.Context) *mux.Router {
 	userRouter := baseRouter.PathPrefix("/user").Subrouter()
 	userRouter.HandleFunc("/connect", handler.CreateUser(userService, f)).Methods(http.MethodPost)
 	userRouter.HandleFunc("/connect/verify", handler.VerifyUser(userService, f)).Methods(http.MethodPost)
+
+	publicEventRouter := baseRouter.PathPrefix("/public_event").Subrouter()
+	publicEventRouter.HandleFunc("", handler.PublicEvent(eventService, f)).Methods(http.MethodPost)
+	publicEventRouter.HandleFunc("", handler.UpdatePublicEvent(eventService, f)).Methods(http.MethodPatch)
+	publicEventRouter.HandleFunc("", handler.GetPublicEvents(eventService, f)).Methods(http.MethodGet)
+	publicEventRouter.HandleFunc("/{userID}", handler.GetPublicEvent(eventService, f)).Methods(http.MethodGet)
 
 	return r
 }
