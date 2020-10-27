@@ -7,13 +7,12 @@ import (
 )
 
 type Vault struct {
-	UserPath     string
-	TempPath     string
-	EventersPath string
+	UserPath string
+	TempPath string
 	*api.Client
 }
 
-func New(token, unsealKey, address, userPath, tempPath, eventersPath string) (*Vault, error) {
+func New(token, unsealKey, address, userPath, tempPath string) (*Vault, error) {
 	config := &api.Config{
 		Address: address,
 	}
@@ -51,12 +50,7 @@ func New(token, unsealKey, address, userPath, tempPath, eventersPath string) (*V
 		return nil, fmt.Errorf("new: unable to mount temp path: %w", err)
 	}
 
-	err = createIfNotExists(client, eventersPath)
-	if err != nil {
-		return nil, fmt.Errorf("new: unable to mount eventers path: %w", err)
-	}
-
-	return &Vault{UserPath: userPath, TempPath: tempPath, EventersPath: eventersPath, Client: client}, nil
+	return &Vault{UserPath: userPath, TempPath: tempPath, Client: client}, nil
 }
 
 func createIfNotExists(client *api.Client, path string) error {

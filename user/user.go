@@ -59,7 +59,7 @@ func (u *User) Get(db *sql.DB, userID int64, firebaseID string) (*model.User, er
 		return nil, fmt.Errorf("get: error getting user profile: %w", err)
 	}
 
-	account, ok, err := u.userAddress(userID)
+	account, ok, err := u.userAddress(fmt.Sprintf("%v%v/0", user.PhoneCountryCode, user.PhoneNumber))
 	if err != nil {
 		return nil, fmt.Errorf("get: error getting user account: %w", err)
 	}
@@ -142,7 +142,7 @@ func (u *User) Verify(ctx context.Context, db *sql.DB, eu *model.User, auth *mod
 		return nil, nil, fmt.Errorf("verify: error fetching user: id: %d: err: %w", eu.UserID, err)
 	}
 
-	err = saveAddress(ctx, u.Vault, u.Algo, usr.UserID)
+	err = saveAddress(ctx, u.Vault, u.Algo, fmt.Sprintf("%v%v/0", usr.PhoneCountryCode, usr.PhoneNumber))
 	if err != nil {
 		logger.Errorf(ctx, "verify: error saving address: %+v", err)
 	}
@@ -232,7 +232,7 @@ func phoneProvider(ctx context.Context, db *sql.DB, v vault.Vault, algo algorand
 			return nil, nil, fmt.Errorf("phoneProvider: error fetching user: id: %d: err: %w", u.UserID, err)
 		}
 
-		err = saveAddress(ctx, v, algo, usr.UserID)
+		err = saveAddress(ctx, v, algo, fmt.Sprintf("%v%v/0", usr.PhoneCountryCode, usr.PhoneNumber))
 		if err != nil {
 			logger.Errorf(ctx, "phoneProvider: error saving address: %+v", err)
 		}
@@ -266,7 +266,7 @@ func phoneProvider(ctx context.Context, db *sql.DB, v vault.Vault, algo algorand
 		return nil, nil, fmt.Errorf("phoneProvider: error fetching user: id: %d: err: %w", id, err)
 	}
 
-	err = saveAddress(ctx, v, algo, usr.UserID)
+	err = saveAddress(ctx, v, algo, fmt.Sprintf("%v%v/0", usr.PhoneCountryCode, usr.PhoneNumber))
 	if err != nil {
 		logger.Errorf(ctx, "phoneProvider: error saving address: %+v", err)
 	}
