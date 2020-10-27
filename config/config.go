@@ -23,10 +23,19 @@ const (
 	VaultUnSealKey = "vault.unseal_key"
 	UserPath       = "vault.user_path"
 	TempPath       = "vault.temp_path"
-	EventersPath   = "vault.eventers_path"
 
 	Port               = "server.port"
-	JWTOfflineInterval = "jwt_offline_interval"
+	JWTOfflineInterval = "server.jwt_offline_interval"
+	Secret             = "server.secret"
+
+	RedisAddress  = "redis.address"
+	RedisPassword = "redis.password"
+	RedisDB       = "redis.db"
+
+	TwilioAccountSID = "twilio.account_sid"
+	TwilioAuthToken  = "twilio.auth_token"
+	TwilioURL        = "twilio.url"
+	TwilioFrom       = "twilio.from"
 )
 
 func init() {
