@@ -78,3 +78,18 @@ type UserConsent struct {
 	PrivacyPolicy        *bool   `json:"privacy_policy,omitempty"`
 	WhatsappNotification *bool   `json:"whatsapp_notification,omitempty"`
 }
+
+type MarketplaceUser struct {
+	UserID           int64  `json:"user_id,omitempty"`
+	MarketPlaceID    int64  `json:"market_place_id,omitempty"`
+	PhoneNumber      string `json:"phone_number,omitempty"`
+	PhoneCountryCode string `json:"phone_country_code,omitempty"`
+	IsValid          bool   `json:"is_valid,omitempty"`
+}
+
+type Marketplace struct {
+	MarketPlaceID   int64  `json:"market_place_id"`
+	MarketPlaceName string `json:"market_place_name"`
+	AccessKey       string `json:"access_key"`
+	AccessType      string `json:"access_type"`
+}

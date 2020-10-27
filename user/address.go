@@ -8,13 +8,13 @@ import (
 	"fmt"
 )
 
-func saveAddress(ctx context.Context, v vault.Vault, algo algorand.Algo, userID int64) error {
+func saveAddress(ctx context.Context, v vault.Vault, algo algorand.Algo, addressPath string) error {
 	a, err := algo.GenerateAccount()
 	if err != nil {
 		return fmt.Errorf("saveAddress: error generating address: %w", err)
 	}
 
-	path := fmt.Sprintf("%s/%v", v.UserPath, userID)
+	path := fmt.Sprintf("%s/%s", v.UserPath, addressPath)
 	data := map[string]interface{}{
 		constants.AccountAddress:     a.AccountAddress,
 		constants.PrivateKey:         a.PrivateKey,
@@ -33,11 +33,11 @@ func saveAddress(ctx context.Context, v vault.Vault, algo algorand.Algo, userID 
 	return nil
 }
 
-func (u *User) userAddress(userID int64) (*algorand.Account, bool, error) {
-	path := fmt.Sprintf("%s/%v", u.Vault.UserPath, userID)
+func (u *User) userAddress(addressPath string) (*algorand.Account, bool, error) {
+	path := fmt.Sprintf("%s/%s", u.Vault.UserPath, addressPath)
 	secret, err := u.Vault.Logical().Read(path)
 	if err != nil {
-		return nil, false, fmt.Errorf("userAddress: could not get account of user: %d", userID)
+		return nil, false, fmt.Errorf("userAddress: could not get account of user: %d", addressPath)
 	}
 
 	accountAddress, accountAddressOK := secret.Data[constants.AccountAddress]

@@ -172,17 +172,19 @@ func EmailNotSent() ErrorResponse {
 
 func OTPExpired() ErrorResponse {
 	return ErrorResponse{
-		Success: false,
-		Message: "OTP Expired, Please try again",
-		Status:  "OTP_EXPIRED",
+		Success:    false,
+		Message:    "OTP Expired, Please try again",
+		Status:     "OTP_EXPIRED",
+		StatusCode: http.StatusGone,
 	}
 }
 
 func OTPMismatch() ErrorResponse {
 	return ErrorResponse{
-		Success: false,
-		Message: "Wrong OTP entered",
-		Status:  "OTP_MISMATCH",
+		Success:    false,
+		Message:    "Wrong OTP entered",
+		Status:     "OTP_MISMATCH",
+		StatusCode: http.StatusBadRequest,
 	}
 }
 
