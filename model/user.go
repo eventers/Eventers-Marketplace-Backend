@@ -85,6 +85,8 @@ type MarketplaceUser struct {
 	PhoneNumber      string `json:"phone_number,omitempty"`
 	PhoneCountryCode string `json:"phone_country_code,omitempty"`
 	IsValid          bool   `json:"is_valid,omitempty"`
+	AccountAddress    string `json:"account_address,omitempty"`
+	AccountPassphrase string `json:"account_passphrase,omitempty"`
 }
 
 type Marketplace struct {
