@@ -71,7 +71,7 @@ func (u *User) CreateMarketPlaceUser(ctx context.Context, db *sql.DB, eu *model.
 	}
 
 	eu.UserID = user.UserID
-	if user.IsValid {
+	if user.IsValid && m.AccessType == interop {
 		return eu, nil, nil
 	}
 
@@ -111,7 +111,7 @@ func (u *User) VerifyMarketPlaceUserOTP(ctx context.Context, db *sql.DB, client 
 		return nil, response.Unauthorized()
 	}
 
-	_, ok, err = MarketPlaceUserExists(db, []interface{}{"user_phone_number", "marketplace_id"}, []interface{}{formatPhoneNumber(eu), m.MarketPlaceID})
+	user, ok, err := MarketPlaceUserExists(db, []interface{}{"user_phone_number", "marketplace_id"}, []interface{}{formatPhoneNumber(eu), m.MarketPlaceID})
 	if err != nil {
 		return nil, response.SomethingWrong()
 	}
@@ -134,6 +134,24 @@ func (u *User) VerifyMarketPlaceUserOTP(ctx context.Context, db *sql.DB, client 
 		path = path + "/0"
 	} else {
 		path = fmt.Sprintf("%s/%v", path, m.MarketPlaceID)
+	}
+
+	if user.IsValid {
+		if m.AccessType == noninterop {
+			account, ok, err := u.userAddress(path)
+			if err != nil {
+				logger.Errorf(ctx, "verifyMarketPlaceUserOTP: error fetching user address: %+v", err)
+				return nil, response.SomethingWrong()
+			}
+			if !ok {
+				logger.Errorf(ctx, "verifyMarketPlaceUserOTP: user account does not exist on vault: %+v", err)
+				return nil, response.SomethingWrong()
+			}
+			eu.AccountAddress = account.PrivateKey
+			eu.AccountPassphrase = account.SecurityPassphrase
+			return eu, nil
+		}
+		return eu, nil
 	}
 
 	err = saveAddress(ctx, u.Vault, u.Algo, path)
