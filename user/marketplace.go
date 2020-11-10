@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"database/sql"
+	"eventers-marketplace-backend/codec"
 	"eventers-marketplace-backend/logger"
 	"eventers-marketplace-backend/model"
 	"eventers-marketplace-backend/response"
@@ -147,7 +148,12 @@ func (u *User) VerifyMarketPlaceUserOTP(ctx context.Context, db *sql.DB, client 
 				logger.Errorf(ctx, "verifyMarketPlaceUserOTP: user account does not exist on vault: %+v", err)
 				return nil, response.SomethingWrong()
 			}
-			eu.AccountAddress = account.PrivateKey
+			encryptedKey, err := codec.Encrypt([]byte(m.AccessKey), []byte( account.PrivateKey))
+			if err != nil {
+				logger.Errorf(ctx, "verifyMarketPlaceUserOTP: could no encrypt private key: %+v", err)
+				return nil, response.SomethingWrong()
+			}
+			eu.AccountAddress = encryptedKey
 			eu.AccountPassphrase = account.SecurityPassphrase
 			return eu, nil
 		}
