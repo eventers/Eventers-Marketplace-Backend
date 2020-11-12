@@ -139,23 +139,11 @@ func (u *User) VerifyMarketPlaceUserOTP(ctx context.Context, db *sql.DB, client 
 
 	if user.IsValid {
 		if m.AccessType == noninterop {
-			account, ok, err := u.userAddress(path)
-			if err != nil {
-				logger.Errorf(ctx, "verifyMarketPlaceUserOTP: error fetching user address: %+v", err)
-				return nil, response.SomethingWrong()
-			}
-			if !ok {
-				logger.Errorf(ctx, "verifyMarketPlaceUserOTP: user account does not exist on vault: %+v", err)
-				return nil, response.SomethingWrong()
-			}
-			encryptedKey, err := codec.Encrypt([]byte(m.AccessKey), []byte( account.PrivateKey))
+			err = u.encryptKeys(eu, m, path)
 			if err != nil {
 				logger.Errorf(ctx, "verifyMarketPlaceUserOTP: could no encrypt private key: %+v", err)
 				return nil, response.SomethingWrong()
 			}
-			eu.AccountAddress = encryptedKey
-			eu.AccountPassphrase = account.SecurityPassphrase
-			return eu, nil
 		}
 		return eu, nil
 	}
@@ -191,8 +179,38 @@ func (u *User) VerifyMarketPlaceUserOTP(ctx context.Context, db *sql.DB, client 
 		logger.Errorf(ctx, "update: %d rows affected: err: %+v", rowsAffected, NoRecordFound)
 		return nil, response.SomethingWrong()
 	}
+	if m.AccessType == noninterop {
+		err = u.encryptKeys(eu, m, path)
+		if err != nil {
+			logger.Errorf(ctx, "verifyMarketPlaceUserOTP: could no encrypt private key: %+v", err)
+			return nil, response.SomethingWrong()
+		}
+	}
 
 	return eu, nil
+}
+
+func (u *User) encryptKeys(eu *model.MarketplaceUser, m *model.Marketplace, path string) error {
+	account, ok, err := u.userAddress(path)
+	if err != nil {
+		return fmt.Errorf("encryptKey: error fetching user address: %w", err)
+	}
+	if !ok {
+		return fmt.Errorf("encryptKey: user account does not exist on vault: %w", err)
+	}
+
+	encryptedAddress, err := codec.Encrypt([]byte(m.AccessKey), []byte( account.AccountAddress))
+	if err != nil {
+		return fmt.Errorf("encryptKey: could no encrypt account address: %w", err)
+	}
+
+	encryptedPassphrase, err := codec.Encrypt([]byte(m.AccessKey), []byte( account.AccountAddress))
+	if err != nil {
+		return fmt.Errorf("encryptKey: could no encrypt passphrase: %w", err)
+	}
+	eu.AccountAddress = encryptedAddress
+	eu.AccountPassphrase = encryptedPassphrase
+	return nil
 }
 
 func MarketPlaceExists(db *sql.DB, columns, values []interface{}) (*model.Marketplace, bool, error) {
