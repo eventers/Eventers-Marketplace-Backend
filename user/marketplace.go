@@ -204,7 +204,7 @@ func (u *User) encryptKeys(eu *model.MarketplaceUser, m *model.Marketplace, path
 		return fmt.Errorf("encryptKey: could no encrypt account address: %w", err)
 	}
 
-	encryptedPassphrase, err := codec.Encrypt([]byte(m.AccessKey), []byte( account.AccountAddress))
+	encryptedPassphrase, err := codec.Encrypt([]byte(m.AccessKey), []byte( account.SecurityPassphrase))
 	if err != nil {
 		return fmt.Errorf("encryptKey: could no encrypt passphrase: %w", err)
 	}
